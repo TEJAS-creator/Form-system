@@ -1,0 +1,84 @@
+// Prisma schema for Bangalore Restaurant Reuse Survey
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model SurveySubmission {
+  id                      String   @id @default(uuid())
+  createdAt               DateTime @default(now())
+  
+  // Page 1: Restaurant Details
+  email                   String
+  restaurantName          String
+  outletsCount            Int
+  contactName             String
+  phoneNumber             String
+  role                    String
+  roleOther               String?
+
+  // Page 2: Waste Generated
+  wetWastePerDay          String
+  wetWasteOther           String?
+  packagingWastePerDay    String
+  packagingWasteOther     String?
+  wasteDiscardMethod      String
+  wasteDiscardMethodOther String?
+  monthlyWasteCostType    String
+  monthlyWasteCostAmount  Float?
+  segregateWaste          String
+
+  // Page 3: Online Sales and Packaging
+  onlineSalesPercent      String
+  packingMaterials        String   // JSON string array
+  packingMaterialsOther   String?
+  containerTypesCount     String
+  containerTypesCountOther String?
+  onlineContainers        OnlineContainer[]
+
+  // Page 4: Reuse and Dine-In
+  wouldSwitchToReuse      String
+  hasDineIn               String
+  usesSingleUseDineIn     String?
+  barrierToDineInReusables String?
+  dineInContainers        DineInContainer[]
+
+  // Page 5: Kitchen Ingredients
+  kitchenIngredients      KitchenIngredient[]
+}
+
+model OnlineContainer {
+  id             String           @id @default(uuid())
+  submissionId   String
+  submission     SurveySubmission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
+  name           String
+  sizeOrVolume   String
+  material       String
+  quantityPerDay Float
+}
+
+model DineInContainer {
+  id             String           @id @default(uuid())
+  submissionId   String
+  submission     SurveySubmission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
+  name           String
+  sizeOrVolume   String
+  material       String
+  quantityPerDay Float
+}
+
+model KitchenIngredient {
+  id               String           @id @default(uuid())
+  submissionId     String
+  submission       SurveySubmission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
+  product          String
+  quantityPerMonth Float
+  unit             String
+  unitOther        String?
+  brand            String
+}
